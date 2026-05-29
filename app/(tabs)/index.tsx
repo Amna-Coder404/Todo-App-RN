@@ -1,31 +1,36 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native'
 import React from 'react'
 import useTheme from '@/hooks/useTheme'
+import { useMutation, useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+import { createHomeStyles } from '@/assets/styles/home.styles';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+
+import { LinearGradient } from "expo-linear-gradient"
+import Header from '@/components/Header';
+
 
 const index = () => {
-  const { toggleDarkMode } = useTheme();
+  const { toggleDarkMode, colors } = useTheme();
+  const todos = useQuery(api.todos.getTodos);
+
+  const homeStyles = createHomeStyles(colors);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.container}>Edit app as you want!</Text>
-      <Text>hi</Text>
-      <TouchableOpacity onPress={toggleDarkMode}><Text>Toggle the mode</Text></TouchableOpacity>
-    </View>
+    <LinearGradient colors={colors.gradients.background} style={homeStyles.container}>
+      <StatusBar barStyle={"default"} />
+      <SafeAreaView style={homeStyles.safeArea}>
+
+        <Header />
+        <TouchableOpacity onPress={toggleDarkMode}>
+          <Text>Toggle the mode</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    </LinearGradient>
   )
 }
 
 export default index
 
 
-const styles = StyleSheet.create({
-  container: {
-    justifyContent: "center",
-    alignItems: "center",
-    flex: 1,
-    flexDirection: "row"
-
-  },
-  content: {
-    fontSize: 23
-  }
-})
