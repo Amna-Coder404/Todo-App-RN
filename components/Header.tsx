@@ -19,7 +19,7 @@ const Header = () => {
 
     const completedTasks = todos ? todos.filter(todo => todo.isCompleted).length : 0;
     const totalTasks = todos ? todos.length : 0;
-    const progressPercent = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+    const progressPercentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
 
 
@@ -37,6 +37,7 @@ const Header = () => {
                         {completedTasks} of {totalTasks} completed
                     </Text>
                 </View>
+
             </View>
 
             {/* Progress Bar */}
@@ -46,17 +47,22 @@ const Header = () => {
                         <View style={homeStyles.progressBarContainer}>
                             <View style={homeStyles.progressBar}>
                                 <LinearGradient colors={colors.gradients.success}
-                                    style={[homeStyles.progressFill, { width: `${progressPercent}%` }]}
+                                    style={[homeStyles.progressFill, { width: `${progressPercentage}%` }]}
                                 />
 
-                                <Text style={homeStyles.progressText}>{Math.round(progressPercent)}%</Text>
+
                             </View>
+                            <Text style={homeStyles.progressText}>{Math.round(progressPercentage)}% </Text>
                         </View>
+
 
                     </View>
                 )
             }
+
+
         </View>
+
     )
 }
 
