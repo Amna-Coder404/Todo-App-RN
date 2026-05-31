@@ -3,24 +3,24 @@ import { api } from '@/convex/_generated/api';
 import useTheme from '@/hooks/useTheme';
 import { useMutation, useQuery } from 'convex/react';
 import React, { useState } from 'react';
-import { Alert, FlatList, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 
+import EmptyState from '@/components/EmptyState';
 import Header from '@/components/Header';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import TodoInput from '@/components/TodoInput';
 import { Doc, Id } from '@/convex/_generated/dataModel';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { LinearGradient } from "expo-linear-gradient";
-import EmptyState from '@/components/EmptyState';
 
 
 
 type Todo = Doc<"todos">
 
 const index = () => {
-  const { toggleDarkMode, colors } = useTheme();
+  const { colors } = useTheme();
   const homeStyles = createHomeStyles(colors);
 
   const todos = useQuery(api.todos.getTodos);
@@ -68,17 +68,37 @@ const index = () => {
   }
 
 
-  // const hanleUpdateTodo = async (id: Id<"todos">) => {
-  //   await updateTodo({
-  //     id: id,
-  //     text: newTodo
-  //   })
-  // }
+  const handleUpdateTodo = async (todo: Todo) => {
+    
+    setEditText(todo.text);
+    setEditingId(todo._id);
+  }
+  const handleSaveTodo = async () => {
+    if (editingId) {
+      try {
+        await updateTodo({ id: editingId, text: editText.trim() });
+        setEditText("");
+        setEditingId(null);
+      }
+      catch (error) {
+        console.log("Error Updating Todo", error);
+        Alert.alert("ERROR", "Error to Update Todo")
+      }
+    }
+  }
+
+  const handleCancelTodo = () => {
+    setEditText("");
+    setEditingId(null);
+  }
 
 
 
   // Todo List
   const renderTodoItem = ({ item }: { item: Todo }) => {
+    const isEditing = editingId === item._id;
+
+
     return (
       <View style={homeStyles.todoItemWrapper}>
         <LinearGradient
@@ -101,26 +121,63 @@ const index = () => {
           </TouchableOpacity>
 
           {/* ----------- */}
-          <View style={homeStyles.todoTextContainer}>
-            <Text style={[homeStyles.todoText, item.isCompleted && {
-              textDecorationLine: "line-through",
-              color: colors.textMuted,
-              opacity: 0.6
-            }]}>{item.text}</Text>
+          {isEditing ? (
+            <View style={homeStyles.editContainer}>
+              <TextInput
+                style={homeStyles.editInput}
+                placeholder={"Edit your todo..."}
+                value={editText}
+                onChangeText={setEditText}
+                autoFocus
+                multiline
+                placeholderTextColor={colors.textMuted}
+              />
 
-            <View style={homeStyles.todoActions}>
-              <TouchableOpacity onPress={() => { }} activeOpacity={0.8}>
-                <LinearGradient colors={colors.gradients.warning} style={homeStyles.actionButton}>
-                  <Ionicons name='pencil' size={14} color={"#fff"} />
-                </LinearGradient>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleDeleteTodo(item._id)} activeOpacity={0.8}>
-                <LinearGradient colors={colors.gradients.danger} style={homeStyles.actionButton}>
-                  <Ionicons name='trash' size={14} color={"#fff"} />
-                </LinearGradient>
-              </TouchableOpacity>
+              <View style={homeStyles.editButtons}>
+                <TouchableOpacity onPress={handleCancelTodo}>
+                  <LinearGradient
+                    colors={colors.gradients.danger}
+                    style={homeStyles.editButton}
+                  >
+                    <Ionicons name='close' size={14} color={"#fff"} />
+                    <Text style={homeStyles.editButtonText}>Cancel</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={handleSaveTodo}>
+                  <LinearGradient
+                    colors={colors.gradients.success}
+                    style={homeStyles.editButton}
+                  >
+                    <Ionicons name='checkmark' size={14} color={"#fff"} />
+                    <Text style={homeStyles.editButtonText}>Save</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+
+              </View>
             </View>
-          </View>
+          ) : (
+            <View style={homeStyles.todoTextContainer}>
+              <Text style={[homeStyles.todoText, item.isCompleted && {
+                textDecorationLine: "line-through",
+                color: colors.textMuted,
+                opacity: 0.6
+              }]}>{item.text}</Text>
+
+              <View style={homeStyles.todoActions}>
+                <TouchableOpacity onPress={() => handleUpdateTodo(item)} activeOpacity={0.8}>
+                  <LinearGradient colors={colors.gradients.warning} style={homeStyles.actionButton}>
+                    <Ionicons name='pencil' size={14} color={"#fff"} />
+                  </LinearGradient>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleDeleteTodo(item._id)} activeOpacity={0.8}>
+                  <LinearGradient colors={colors.gradients.danger} style={homeStyles.actionButton}>
+                    <Ionicons name='trash' size={14} color={"#fff"} />
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
           {/* -------------- */}
         </LinearGradient>
 
@@ -138,9 +195,7 @@ const index = () => {
         <TodoInput />
 
         {/* Render Todos */}
-
         <FlatList
-
           data={todos}
           renderItem={renderTodoItem}
           keyExtractor={(item) => item._id}
@@ -150,10 +205,8 @@ const index = () => {
           showsVerticalScrollIndicator={false}
         />
 
-        <TouchableOpacity onPress={toggleDarkMode}>
-          <Text>Toggle Bg</Text>
 
-        </TouchableOpacity>
+
       </SafeAreaView>
     </LinearGradient >
   )
@@ -162,4 +215,4 @@ const index = () => {
 export default index
 
 
-// TODO : Replace ALret.alret into custom and reuseable package or componects
+// TODO : Replace Alert.alert into custom and reuseable package or components
