@@ -1,4 +1,6 @@
 import { createSettingsStyles } from '@/assets/styles/settings.styles';
+import DangerZone from '@/components/DangerZone';
+import Performances from '@/components/Performances';
 import ProgressStats from '@/components/ProgressStats';
 import useTheme from '@/hooks/useTheme';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,33 +10,40 @@ import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const SettingScreen = () => {
-  const { colors, isDarkMode, toggleDarkMode } = useTheme();
-  const settingStlye = createSettingsStyles(colors);
+  const { colors } = useTheme();
+  const settingStyle = createSettingsStyles(colors);
 
-  const [isAutoSync, setIsAutoSync] = useState("");
-  const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(true);
 
 
   return (
-    <LinearGradient colors={colors.gradients.background} style={settingStlye.container}>
-      <SafeAreaView style={settingStlye.safeArea}>
+    <LinearGradient colors={colors.gradients.background} style={settingStyle.container}>
+      <SafeAreaView style={settingStyle.safeArea}>
         {/* HEADER */}
-        <View style={settingStlye.header}>
-          <View style={settingStlye.titleContainer}>
-            <LinearGradient colors={colors.gradients.primary} style={settingStlye.iconContainer}>
+        <View style={settingStyle.header}>
+          <View style={settingStyle.titleContainer}>
+            <LinearGradient colors={colors.gradients.primary} style={settingStyle.iconContainer}>
               <Ionicons name='settings' size={28} color={"#fff"} />
             </LinearGradient>
-            <Text style={settingStlye.title}>Settings</Text>
+            <Text style={settingStyle.title}>Settings</Text>
           </View>
         </View>
 
 
         {/* PROGRESS STATS */}
         <ScrollView
-          style={settingStlye.scrollView}
-          contentContainerStyle={settingStlye.content}
+          style={settingStyle.scrollView}
+          contentContainerStyle={settingStyle.content}
           showsVerticalScrollIndicator={false}>
+
+          {/* Progress Stats */}
           <ProgressStats />
+
+          {/* PREFERENCE */}
+          <Performances />
+
+          {/*  DANGER ZONE*/}
+          <DangerZone />
+
         </ScrollView>
       </SafeAreaView>
     </LinearGradient>
